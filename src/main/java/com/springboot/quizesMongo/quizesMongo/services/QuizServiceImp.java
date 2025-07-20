@@ -1,11 +1,15 @@
 package com.springboot.quizesMongo.quizesMongo.services;
 
 import com.springboot.quizesMongo.quizesMongo.collections.Quiz;
+import com.springboot.quizesMongo.quizesMongo.dto.CategoryDto;
 import com.springboot.quizesMongo.quizesMongo.dto.QuizDto;
 import com.springboot.quizesMongo.quizesMongo.respository.QuizMongoRepo;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,15 +18,24 @@ import java.util.UUID;
 @AllArgsConstructor
 public class QuizServiceImp implements QuizService{
 
+    private  final Logger logger = LoggerFactory.getLogger(QuizServiceImp.class);
     private ModelMapper modelMapper;
     private QuizMongoRepo quizMongoRepo;
+    private RestTemplate restTemplate;
 
     @Override
     public QuizDto create(QuizDto quizDto) {
         Quiz quiz = modelMapper.map(quizDto,Quiz.class);
         quiz.setId(UUID.randomUUID().toString());
+
+        String url ="http://localhost:9091/api/v1/categories/"+ quizDto.getCategoryId();
+        CategoryDto categoryDto = restTemplate.getForObject(url, CategoryDto.class);
+        logger.info("Successfully Found Category ID");
+
         Quiz savedQuiz = quizMongoRepo.save(quiz);
-        return modelMapper.map(savedQuiz,QuizDto.class);
+        QuizDto savedQuizDto = modelMapper.map(savedQuiz,QuizDto.class);
+        savedQuizDto.setCategoryDto(categoryDto);
+        return savedQuizDto;
 
     }
 
@@ -40,6 +53,9 @@ public class QuizServiceImp implements QuizService{
         quiz.setLive(quizDto.getLive());
         quiz.setPassingMarks(quizDto.getPassingMarks());
         quiz.setCategoryId(quizDto.getCategoryId());
+
+
+
         Quiz savedQuiz = quizMongoRepo.save(quiz);
         return modelMapper.map(savedQuiz,QuizDto.class);
     }
@@ -60,7 +76,14 @@ public class QuizServiceImp implements QuizService{
     @Override
     public QuizDto findById(String quizID) {
         Quiz quiz = quizMongoRepo.findById(quizID).orElseThrow(()-> new RuntimeException("No quiz Found"));
-        return modelMapper.map(quiz,QuizDto.class);
+        QuizDto quizDto= modelMapper.map(quiz,QuizDto.class);
+        String categoryId = quiz.getCategoryId();
+        String url ="http://localhost:9091/api/v1/categories/"+categoryId;
+        logger.info(url);
+        CategoryDto categoryDto = restTemplate.getForObject(url, CategoryDto.class);
+        quizDto.setCategoryDto(categoryDto);
+
+        return quizDto;
     }
 
     @Override
