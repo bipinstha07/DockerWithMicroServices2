@@ -10,9 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.UUID;
 
 @SpringBootApplication
-public class QuizesMongoApplication implements CommandLineRunner {
-
-
+public class QuizesMongoApplication  {
 	@Autowired
 	private QuizMongoRepo quizMongoRepo;
 
@@ -20,23 +18,4 @@ public class QuizesMongoApplication implements CommandLineRunner {
 		SpringApplication.run(QuizesMongoApplication.class, args);
 	}
 
-
-	@Override
-	public void run(String... args) throws Exception {
-	Quiz quiz =	Quiz.builder()
-				.id(UUID.randomUUID().toString())
-				.title("Java Quiz")
-				.description("Quizes demo")
-				.maxMarks(100)
-				.timeLimit(60)
-				.createdBy("Shrestha")
-				.noOfQuestions(20)
-				.imageUrl("htps:/iamge.url.demo")
-				.live(true)
-				.passingMarks(70)
-				.build();
-
-	 quizMongoRepo.save(quiz);
-//		System.out.println(savedQuiz.getTitle());
-	}
 }

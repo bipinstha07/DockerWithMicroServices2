@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface QuizMongoRepo extends MongoRepository<Quiz,String> {
 
-    List<Quiz> findQuizByTitle(String title);
+    List<Quiz> findByTitle(String title);
+    List<Quiz> findByCategoryId(String categoryId);
 
 }
