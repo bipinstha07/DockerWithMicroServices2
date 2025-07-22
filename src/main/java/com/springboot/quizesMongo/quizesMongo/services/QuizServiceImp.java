@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class QuizServiceImp implements QuizService{
     private ModelMapper modelMapper;
     private QuizMongoRepo quizMongoRepo;
     private RestTemplate restTemplate;
+    private WebClient webClient;
 
     @Override
     public QuizDto create(QuizDto quizDto) {
@@ -69,8 +71,27 @@ public class QuizServiceImp implements QuizService{
     @Override
     public List<QuizDto> findAll() {
         List<Quiz> quiz = quizMongoRepo.findAll();
-        List<QuizDto> quizDto = quiz.stream().map((q)->modelMapper.map(q,QuizDto.class)).toList();
-        return quizDto;
+
+       List<QuizDto> quizDto1 =  quiz.stream().map((a)->{
+           String categoryId = a.getCategoryId();
+           QuizDto quizDto = modelMapper.map(a,QuizDto.class);
+
+           //call to quiz service using webclient
+           CategoryDto categoryDto =  this.webClient
+                   .get()
+                   .uri("/api/v1/categories/{categoryId}",categoryId)
+                   .retrieve()
+                   .bodyToMono(CategoryDto.class)
+                   .block();
+
+
+           quizDto.setCategoryDto(categoryDto);
+           return quizDto;
+
+        }).toList();
+
+
+        return quizDto1;
     }
 
     @Override
