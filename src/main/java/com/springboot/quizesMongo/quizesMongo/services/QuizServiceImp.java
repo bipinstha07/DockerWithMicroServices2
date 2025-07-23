@@ -23,7 +23,7 @@ public class QuizServiceImp implements QuizService{
     private ModelMapper modelMapper;
     private QuizMongoRepo quizMongoRepo;
     private RestTemplate restTemplate;
-    private WebClient webClient;
+    private  CategoryService categoryService;
 
     @Override
     public QuizDto create(QuizDto quizDto) {
@@ -77,14 +77,7 @@ public class QuizServiceImp implements QuizService{
            QuizDto quizDto = modelMapper.map(a,QuizDto.class);
 
            //call to quiz service using webclient
-           CategoryDto categoryDto =  this.webClient
-                   .get()
-                   .uri("/api/v1/categories/{categoryId}",categoryId)
-                   .retrieve()
-                   .bodyToMono(CategoryDto.class)
-                   .block();
-
-
+           CategoryDto categoryDto = categoryService.findById(categoryId);
            quizDto.setCategoryDto(categoryDto);
            return quizDto;
 
