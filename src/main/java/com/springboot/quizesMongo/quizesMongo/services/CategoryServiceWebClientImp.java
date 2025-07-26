@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class CategoryServiceImp implements CategoryService{
+public class CategoryServiceWebClientImp implements CategoryService{
 
     private WebClient webClient;
 
