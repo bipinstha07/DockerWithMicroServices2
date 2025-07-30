@@ -1,6 +1,7 @@
 package com.springboot.quizesMongo.quizesMongo.controller;
 
 import com.springboot.quizesMongo.quizesMongo.dto.QuizDto;
+import com.springboot.quizesMongo.quizesMongo.services.CategoryService;
 import com.springboot.quizesMongo.quizesMongo.services.QuizService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class QuizController {
     private QuizService quizService;
+    private CategoryService categoryService;
 
     @PostMapping
     public ResponseEntity<QuizDto> createQuiz(@RequestBody QuizDto quizDto){
@@ -44,6 +46,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.findById(quizId),HttpStatus.OK);
     }
 
+//    Get Quiz by Category ID using WebClient
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<QuizDto>> getQuizbyCategory(@PathVariable String categoryId){
         return new ResponseEntity<>(quizService.findByCategory(categoryId),HttpStatus.OK);

@@ -11,12 +11,15 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class CategoryServiceWebClientImp implements CategoryService{
 
-    private WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
+    private final WebClient webClient;
 
-
+    public CategoryServiceWebClientImp(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
+        this.webClient = webClientBuilder.baseUrl("http://CATEGORY-SERVICE").build();
+    }
     @Override
     public CategoryDto findById(String categoryId) {
         try{

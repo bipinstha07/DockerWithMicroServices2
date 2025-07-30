@@ -23,10 +23,9 @@ public class AppConfig {
     }
 
     @Bean
-    public WebClient webClient(){
-        return WebClient.builder().
-                baseUrl("http://localhost:9091").
-                build();
+    @LoadBalanced
+    public WebClient.Builder webClientBuilder(){
+        return WebClient.builder();
     }
 
 }

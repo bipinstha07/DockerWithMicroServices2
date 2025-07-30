@@ -96,7 +96,7 @@ public class QuizServiceImp implements QuizService{
         Quiz quiz = quizMongoRepo.findById(quizID).orElseThrow(()-> new RuntimeException("No quiz Found"));
         QuizDto quizDto= modelMapper.map(quiz,QuizDto.class);
         String categoryId = quiz.getCategoryId();
-        String url ="http://localhost:9091/api/v1/categories/"+categoryId;
+        String url ="http://CATEGORY-SERVICE/api/v1/categories/"+categoryId;
         logger.info(url);
         CategoryDto categoryDto = restTemplate.getForObject(url, CategoryDto.class);
         quizDto.setCategoryDto(categoryDto);
@@ -112,7 +112,11 @@ public class QuizServiceImp implements QuizService{
                         QuizDto quizd = modelMapper.map(a,QuizDto.class);
 
                         try{
-                            quizd.setCategoryDto(categoryServiceFeign.findByCategoryId(a.getCategoryId()));
+//                            By WebClient
+                            quizd.setCategoryDto(categoryService.findById(a.getCategoryId()));
+
+//                            By Feign
+//                            quizd.setCategoryDto(categoryServiceFeign.findByCategoryId(a.getCategoryId()));
                             return quizd ;
 
                         }
