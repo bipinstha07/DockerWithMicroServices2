@@ -24,13 +24,15 @@ public class QuizServiceImp implements QuizService{
     private QuizMongoRepo quizMongoRepo;
     private RestTemplate restTemplate;
     private  CategoryService categoryService;
+    private CategoryServiceFeign categoryServiceFeign;
 
+//    Rest Template
     @Override
     public QuizDto create(QuizDto quizDto) {
         Quiz quiz = modelMapper.map(quizDto,Quiz.class);
         quiz.setId(UUID.randomUUID().toString());
 
-        String url ="http://localhost:9091/api/v1/categories/"+ quizDto.getCategoryId();
+        String url ="http://CATEGORY-SERVICE/api/v1/categories/"+ quizDto.getCategoryId();
         CategoryDto categoryDto = restTemplate.getForObject(url, CategoryDto.class);
         logger.info("Successfully Found Category ID");
 
@@ -87,6 +89,8 @@ public class QuizServiceImp implements QuizService{
         return quizDto1;
     }
 
+
+//    Rest Template
     @Override
     public QuizDto findById(String quizID) {
         Quiz quiz = quizMongoRepo.findById(quizID).orElseThrow(()-> new RuntimeException("No quiz Found"));
@@ -103,7 +107,24 @@ public class QuizServiceImp implements QuizService{
     @Override
     public List<QuizDto> findByCategory(String categoryId) {
         List<Quiz> quiz = quizMongoRepo.findByCategoryId(categoryId);
-        List<QuizDto> quizDto = quiz.stream().map((a)->modelMapper.map(a,QuizDto.class)).toList();
-        return quizDto;
+       return quiz.stream().map(
+               (a)->{
+                        QuizDto quizd = modelMapper.map(a,QuizDto.class);
+
+                        try{
+                            quizd.setCategoryDto(categoryServiceFeign.findByCategoryId(a.getCategoryId()));
+                            return quizd ;
+
+                        }
+                        catch (Exception e){
+                            System.out.println("No Category Found");
+                            quizd.setCategoryDto(null);
+                            return quizd;
+                        }
+
+
+               }
+        ).toList();
+
     }
 }

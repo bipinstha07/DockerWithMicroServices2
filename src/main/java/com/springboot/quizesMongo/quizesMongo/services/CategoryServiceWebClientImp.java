@@ -2,8 +2,11 @@ package com.springboot.quizesMongo.quizesMongo.services;
 
 import com.springboot.quizesMongo.quizesMongo.dto.CategoryDto;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.List;
 
@@ -16,12 +19,25 @@ public class CategoryServiceWebClientImp implements CategoryService{
 
     @Override
     public CategoryDto findById(String categoryId) {
-     return   this.webClient
-                .get()
-                .uri("/api/v1/categories/{categoryId}",categoryId)
-                .retrieve()
-                .bodyToMono(CategoryDto.class)
-                .block();
+        try{
+            return this.webClient
+                    .get()
+                    .uri("/api/v1/categories/{categoryId}",categoryId)
+                    .retrieve()
+                    .bodyToMono(CategoryDto.class)
+                    .block();
+
+        }
+        catch (WebClientResponseException e){
+            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+                System.out.println("Not Found");
+            }
+            else if(e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)){
+                System.out.println("Internal server");
+            }
+        }
+        return null;
+
     }
 
     @Override
